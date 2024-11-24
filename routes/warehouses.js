@@ -84,20 +84,26 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ message: "Warehouse not found." });
     }
 
-    // Update warehouse details
-    const [updatedWarehouse] = await knex('warehouses')
-      .where({ id: warehouseId })
-      .update({
-        warehouse_name,
-        address,
-        city,
-        country,
-        contact_name,
-        contact_position,
-        contact_phone,
-        contact_email
-      })
-      .returning('*'); // Return the updated warehouse data
+    // Perform the update operation
+    const updatedRows = await knex('warehouses')
+    .where({ id: warehouseId })
+    .update({
+      warehouse_name,
+      address,
+      city,
+      country,
+      contact_name,
+      contact_position,
+      contact_phone,
+      contact_email
+    });
+
+    if (updatedRows === 0) {
+    return res.status(404).json({ message: "Warehouse not found." });
+    }
+
+    // Query the database for the updated record
+    const updatedWarehouse = await knex('warehouses').where('id', warehouseId).first();
 
     // Send the updated warehouse data as the response
     res.status(200).json(updatedWarehouse);
@@ -129,7 +135,7 @@ router.post('/', async (req, res) => {
 
   try {
     // Insert the new warehouse into the database
-    const [newWarehouse] = await knex('warehouses').insert({
+    const [insertedId] = await knex('warehouses').insert({
       warehouse_name,
       address,
       city,
@@ -138,7 +144,10 @@ router.post('/', async (req, res) => {
       contact_position,
       contact_phone,
       contact_email
-    }).returning('*'); // Return the newly created warehouse data
+    });
+
+    // Query the database for the inserted record
+    const newWarehouse = await knex('warehouses').where('id', insertedId).first();
 
     // Send the newly created warehouse data as the response
     res.status(201).json(newWarehouse);

@@ -1,9 +1,11 @@
 import express from 'express';
 import warehousesRouter from './routes/warehouses.js'; 
+import cors from 'cors';
 //import inventoriesRouter from './routes/inventories.js'; 
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
 // Routes
