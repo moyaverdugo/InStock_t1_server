@@ -1,7 +1,7 @@
 import express from 'express';
-import warehousesRouter from './routes/warehouses.js'; 
 import cors from 'cors';
-//import inventoriesRouter from './routes/inventories.js'; 
+import warehousesRouter from './routes/warehouses.js'; 
+import inventoriesRouter from './routes/inventories.js'; 
 
 const app = express();
 
@@ -10,7 +10,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/warehouses', warehousesRouter);
-//app.use('/api/inventories', inventoriesRouter);
+app.use('/api/inventories', inventoriesRouter);
 
 const PORT = process.env.PORT || 3000;
 
