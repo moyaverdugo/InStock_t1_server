@@ -26,7 +26,10 @@ router.get('/', async (_req, res) => {
       res.status(500).send('Error fetching inventory data');
     }
   });
+// -----------------------------------------------------------------------------------------------------------------
 
+///////////////// I just copied the warehouse one and changed the names from warehouse to inventory.
+///////////////// I havent even checked if this makes any sense////////////
 // Get a single inventory item by ID
 router.get("/:id", async (req, res) => {
     try {
