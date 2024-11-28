@@ -27,23 +27,52 @@ router.get('/', async (_req, res) => {
     }
   });
 // -----------------------------------------------------------------------------------------------------------------
+//POST /api/inventories
+router.post('/', async(req, res) => {
+  const {
+    warehouse_id,
+    item_name,
+    description,
+    category,
+    status,
+    quantity
+  } = req.body;
 
-///////////////// I just copied the warehouse one and changed the names from warehouse to inventory.
-///////////////// I havent even checked if this makes any sense////////////
-// Get a single inventory item by ID
-router.get("/:id", async (req, res) => {
-    try {
-      const inventoryItem = await knex("inventories")
-        .where({ id: req.params.id })
-        .first();
-      if (!inventoryItem) {
-        return res.status(404).json({ message: "Item not found" });
-      }
-      res.status(200).json(inventoryItem);
-    } catch (error) {
-      console.error("Error fetching inventory item:", error);
-      res.status(500).json({ message: "Error fetching inventory item" });
-    }
-  });
+  //Validate of no missing fields
+  if (!warehouse_id || !item_name || !description || !category || !status || !quantity) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  //Validate warehouse ID
+  const foundWarehouse = await knex("warehouses")
+  .where('id', warehouse_id).first()
   
-  export default router;
+  if ( !foundWarehouse ) {
+    return res.status(400).json({ message: `There is no warehouse with the ID of ${warehouse_id}` });
+  }
+
+  //Validate type of quantity
+  if( typeof(quantity) !== "number" ) {
+    return res.status(400).json({ message: "Quantity must be a number" });
+  }
+
+  //Insert new inventory item to the inventories table
+  try {
+    const [newId] = await knex("inventories").insert({
+      warehouse_id,
+      item_name,
+      description,
+      category,
+      status,
+      quantity
+    });
+
+    const newInventory = await knex("inventories").where('id', newId).first();
+
+    res.status(201).json(newInventory);
+  } catch(error) {
+    res.status(500).json({ message: "Can't create new inventory item" });
+  }
+})
+
+export default router;
