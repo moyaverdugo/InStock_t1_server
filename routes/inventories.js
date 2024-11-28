@@ -28,22 +28,31 @@ router.get('/', async (_req, res) => {
   });
 // -----------------------------------------------------------------------------------------------------------------
 
-///////////////// I just copied the warehouse one and changed the names from warehouse to inventory.
-///////////////// I havent even checked if this makes any sense////////////
-// Get a single inventory item by ID
-router.get("/:id", async (req, res) => {
-    try {
-      const inventoryItem = await knex("inventories")
-        .where({ id: req.params.id })
-        .first();
-      if (!inventoryItem) {
-        return res.status(404).json({ message: "Item not found" });
-      }
-      res.status(200).json(inventoryItem);
-    } catch (error) {
-      console.error("Error fetching inventory item:", error);
-      res.status(500).json({ message: "Error fetching inventory item" });
+// GET /api/inventories/:id
+// router.get("/:id", async (req, res) => {
+router.get('/:id', async(req,res) => {
+  try {
+    const inventoryItem = await knex('inventories')
+      .join('warehouses', 'inventories.warehouse_id', 'warehouses.id')
+      .select(
+          'inventories.id',
+          'warehouses.warehouse_name',
+          'inventories.item_name',
+          'inventories.description',
+          'inventories.category',
+          'inventories.status',
+          'inventories.quantity'
+      )
+      .where('inventories.id',req.params.id)
+      .first();
+    res.status(200).json(inventoryItem);
+    if(!inventoryItem) {
+      return res.status(404).json({ message: "Item not found" });
     }
-  });
+  } catch(error) {
+    console.error("Error fetching inventory item:", error);
+    res.status(500).json({ message: "Error fetching inventory item" });
+  }
+})
   
-  export default router;
+export default router;
