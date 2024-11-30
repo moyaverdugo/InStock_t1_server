@@ -39,7 +39,7 @@ router.post('/', async(req, res) => {
   } = req.body;
 
   //Validate of no missing fields
-  if (!warehouse_id || !item_name || !description || !category || !status || !quantity) {
+  if (!warehouse_id || !item_name || !description || !category || !status ) {
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -54,6 +54,10 @@ router.post('/', async(req, res) => {
   //Validate type of quantity
   if( typeof(quantity) !== "number" ) {
     return res.status(400).json({ message: "Quantity must be a number" });
+  }
+
+  if (status === "In Stock" && !quantity) {
+    return res.status(400).json({ message: "Quantity is needed for item instock" });
   }
 
   //Insert new inventory item to the inventories table
